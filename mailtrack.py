@@ -1,8 +1,6 @@
 import os
-os.environ["PARSONS_SKIP_IMPORT_ALL"]="True"
 import streamlit as st
 import pandas as pd
-from parsons.etl.table import Table
 import petl as etl
 
 st.set_page_config(page_title="Universe Validate", page_icon="📆", layout="wide")
@@ -12,7 +10,6 @@ st.selectbox('Universe Type', ['Mail'])
 
 st.header("Upload File")
 uploaded_file = st.file_uploader("Upload a csv")
-st.write(uploaded_file)
 delimiter = st.selectbox("Delimiter", ['Comma','Tab'])
 if delimiter == 'Comma':
     delimiter = ','
@@ -29,8 +26,6 @@ if uploaded_file is not None:
 
     st.header("Configuration")
     map_cols = st.columns([1,1,2])
-    # tbl = Table.from_dataframe(df)
-    # cols_select = df.columns
     state = map_cols[0].selectbox('State Column', df.columns.values.tolist())
     valid_states = map_cols[1].text_input('Expected States', help="A list of states you expect to see in the file. Separate by multiple states comma. e.g. (IL, WI).")
     district = map_cols[0].selectbox('District Column', df.columns.values.tolist())
