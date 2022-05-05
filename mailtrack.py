@@ -25,6 +25,7 @@ if uploaded_file is not None:
         st.write(df[:100])
 
     st.header("Configuration")
+    st.caption("Map the columns and enter expected values.")
     map_cols = st.columns([1,1,2])
     state = map_cols[0].selectbox('State Column', df.columns.values.tolist())
     valid_states = map_cols[1].text_input('Expected States', help="A list of states you expect to see in the file. Separate by multiple states comma. e.g. (IL, WI).")
@@ -44,7 +45,7 @@ if uploaded_file is not None:
     st.header("Analysis")
     report_col = st.columns([1,1,1,1])
     report_col[0].metric('Records', len(df))
-    if len(valid_states) > 1: 
+    if len(valid_states) > 0: 
         report_col[1].metric('Out Of State Or State Null', out_of_geo_count(df, state, valid_states))
-    if len(valid_districts) > 1: report_col[2].metric('Out Of District Or District Null', out_of_geo_count(df, district, valid_districts))
+    if len(valid_districts) > 0: report_col[2].metric('Out Of District Or District Null', out_of_geo_count(df, district, valid_districts))
 
