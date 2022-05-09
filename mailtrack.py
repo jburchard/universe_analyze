@@ -9,6 +9,7 @@ st.title("Universe Analyze")
 
 st.selectbox('Universe Type', ['Mail'])
 
+# File Uploader Code.
 st.header("Upload File")
 uploaded_file = st.file_uploader("Upload a csv")
 csv_settings = st.columns([1,1,1])
@@ -22,20 +23,33 @@ if delimiter == 'Pipe':
 encoding = csv_settings[1].selectbox("Encoding", ['utf_8', 'utf_16'])
 encoding_errors = csv_settings[2].selectbox("Encoding Errors", ['strict', 'ignore'])
 
-print (delimiter)
-
 if uploaded_file is not None:
     df = pd.read_csv(uploaded_file, sep=delimiter, encoding=encoding, encoding_errors=encoding_errors)
     with st.expander('View Sample Records') as exp:
             uploaded_file.seek(0)
             st.write(df[:100])
 
+    # Configuration Code
+    def guess_column(df, column_name):
+
+        col_map = {'state': ['st','state'],
+                   'district': ['hd', 'sd', 'cd', 'precinct']
+                  }
+
+        cols = df.columns.values.tolist()
+
+        for col in cols:
+            cleaned_col = col.lower().replace('_', '').replace(' ', '')
+            for i in col_map[column_name]:
+                if cleaned_col.find(i) != -1:
+                    return cols.index(col)
+
     st.header("Configuration")
     st.caption("Map the columns and enter expected values.")
     map_cols = st.columns([1,1,2])
-    state = map_cols[0].selectbox('State Column', df.columns.values.tolist())
+    state = map_cols[0].selectbox('State Column', df.columns.values.tolist(), index=guess_column(df, 'state'))
     valid_states = map_cols[1].multiselect('Expected States', form_values.states, help="You may select multiple states.")
-    district = map_cols[0].selectbox('District Column', df.columns.values.tolist())
+    district = map_cols[0].selectbox('District Column', df.columns.values.tolist(), index=guess_column(df, 'district'))
     valid_districts = map_cols[1].text_input('Expected Districts', help="A list of districts you expect to see in the file. Separate by multiple states comma. e.g. (01, 02).")
     
     def clean_text_input(input):
@@ -49,6 +63,7 @@ if uploaded_file is not None:
         total = out_of_geo + df[col].isna().sum()
         return total
     
+    # Analysis Code
     st.header("Analysis")
     report_col = st.columns([1,1,1,1])
     report_col[0].metric('Records', len(df))
